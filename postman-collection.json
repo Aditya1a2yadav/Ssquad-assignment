@@ -1,0 +1,134 @@
+{
+    "info": {
+        "name": "Ssquad API Collection",
+        "description": "Postman collection for Ssquad API endpoints.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password\"\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:3000/login",
+                            "host": ["localhost"],
+                            "port": "3000",
+                            "path": ["login"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Plans",
+            "item": [
+                {
+                    "name": "Get All Plans",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "http://localhost:3000/plans?limit=10&page=1",
+                            "host": ["localhost"],
+                            "port": "3000",
+                            "path": ["plans"],
+                            "query": [
+                                { "key": "limit", "value": "10" },
+                                { "key": "page", "value": "1" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Plan By ID",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "http://localhost:3000/plans/:id",
+                            "host": ["localhost"],
+                            "port": "3000",
+                            "path": ["plans", ":id"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Plan",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Plan Title\",\n    \"location\": \"Location\",\n    \"category\": \"Category\",\n    \"date\": \"2024-12-01\",\n    \"time\": \"10:00:00\",\n    \"description\": \"Description\",\n    \"created_by\": \"Admin Username\"\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:3000/plans",
+                            "host": ["localhost"],
+                            "port": "3000",
+                            "path": ["plans"]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Plan",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Updated Title\",\n    \"location\": \"Updated Location\",\n    \"category\": \"Updated Category\",\n    \"date\": \"2024-12-01\",\n    \"time\": \"10:00:00\",\n    \"description\": \"Updated Description\",\n    \"created_by\": \"Admin Username\"\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:3000/plans/:id",
+                            "host": ["localhost"],
+                            "port": "3000",
+                            "path": ["plans", ":id"]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Plan",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "http://localhost:3000/plans/:id",
+                            "host": ["localhost"],
+                            "port": "3000",
+                            "path": ["plans", ":id"]
+                        }
+                    }
+                },
+                {
+                    "name": "Filter Plans",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "http://localhost:3000/plans/filter?location=NewYork&date=2024-12-01&category=Event&sort_by=date",
+                            "host": ["localhost"],
+                            "port": "3000",
+                            "path": ["plans", "filter"],
+                            "query": [
+                                { "key": "location", "value": "NewYork" },
+                                { "key": "date", "value": "2024-12-01" },
+                                { "key": "category", "value": "Event" },
+                                { "key": "sort_by", "value": "date" }
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
