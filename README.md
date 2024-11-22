@@ -31,7 +31,7 @@ This table stores information about each plan created by users.
 
 ### Prerequisites
 
-- **Node.js**: Ensure you have Node.js installed (version 12 or higher).
+- **Node.js**: Ensure you have Node.js installed.
 - **MySQL**: Install and configure MySQL.
 
 ### Installation
