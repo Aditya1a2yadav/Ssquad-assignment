@@ -10,16 +10,6 @@ The API uses a MySQL database named `Ssquad`. It consists of two tables:
 
 ### `admin` Table
 
-This table stores user data, typically for admins who can manage the plans.
-
-| Column        | Type          | Description               |
-| ------------- | ------------- | ------------------------- |
-| `admin_id`    | INT (Primary Key, Auto Increment) | Unique identifier for the admin |
-| `username`    | VARCHAR(255)  | Username of the admin      |
-| `password`    | VARCHAR(255)  | Encrypted password of the admin |
-| `email`       | VARCHAR(255)  | Email address of the admin |
-| `created_at`  | TIMESTAMP     | Timestamp of admin creation |
-
 ### `plans` Table
 
 This table stores information about each plan created by users.
