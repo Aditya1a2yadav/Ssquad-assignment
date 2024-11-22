@@ -210,3 +210,99 @@ GET /plans/filter
  }
 
  Use Case: Routes like the login page that should only be accessible if the user is not logged in
+
+# Testing the Ssquad API with Postman
+
+# Step 1: Import the Postman Collection
+# -------------------------------------
+# 1. Open Postman.
+# 2. Click on the "Import" button in the top-left corner.
+# 3. Use one of the following methods to import the collection:
+#    a) Drag and drop the file `Ssquad.postman_collection.json` into the Import modal.
+#    b) Select the file manually:
+#       - Click "Upload Files"
+#       - Browse to `Ssquad.postman_collection.json`
+# 4. Once imported, you will see a collection named "Ssquad API Collection" in the sidebar.
+
+# Step 2: Create a New Environment
+# --------------------------------
+# 1. Open the "Environments" tab in Postman.
+# 2. Click "Add New Environment".
+# 3. Name the environment: Ssquad Environment.
+# 4. Add a variable:
+#    - Variable Name: base_url
+#    - Initial Value: http://localhost:3000
+# 5. Save the environment.
+# 6. Select "Ssquad Environment" from the dropdown in the top-right corner of Postman.
+
+# Step 3: Test the Endpoints
+# --------------------------
+# Use the imported collection to test the API.
+# Replace placeholder values (e.g., :id) in the endpoints with actual data when testing.
+
+# Endpoint Summary
+# ----------------
+
+# 1. Authentication
+# Login:
+# - Method: POST
+# - Endpoint: {{base_url}}/login
+# - Body:
+# {
+#   "username": "your_username",
+#   "password": "your_password"
+# }
+
+# 2. Plans Management
+# Create a New Plan:
+# - Method: POST
+# - Endpoint: {{base_url}}/plans
+# - Body:
+# {
+#   "title": "Plan Title",
+#   "location": "Location",
+#   "category": "Category",
+#   "date": "YYYY-MM-DD",
+#   "time": "HH:MM:SS",
+#   "description": "Description",
+#   "created_by": "Admin Username"
+# }
+
+# Retrieve All Plans:
+# - Method: GET
+# - Endpoint: {{base_url}}/plans
+
+# Retrieve Specific Plan:
+# - Method: GET
+# - Endpoint: {{base_url}}/plans/:id
+
+# Update a Plan:
+# - Method: PATCH
+# - Endpoint: {{base_url}}/plans/:id
+# - Body:
+# {
+#   "title": "Updated Title",
+#   "location": "Updated Location",
+#   "category": "Updated Category",
+#   "date": "YYYY-MM-DD",
+#   "time": "HH:MM:SS",
+#   "description": "Updated Description",
+#   "created_by": "Admin Username"
+# }
+
+# Delete a Plan:
+# - Method: DELETE
+# - Endpoint: {{base_url}}/plans/:id
+
+# Filter Plans:
+# - Method: GET
+# - Endpoint: {{base_url}}/plans/filter
+# - Query Parameters:
+#   - location (optional)
+#   - date (optional)
+#   - category (optional)
+#   - sort_by (optional): "time" or "date"
+# Example:
+#   {{base_url}}/plans/filter?location=NewYork&date=2024-12-01&sort_by=date
+
+# Note: The collection includes examples for all endpoints with proper request bodies and parameters.
