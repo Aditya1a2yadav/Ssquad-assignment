@@ -73,7 +73,7 @@ app.get('/plans', checkAuthenticated, (req, res) => {
         if (err) {
             res.status(500).json({ message: 'Error fetching plans', error: err.message });
         } else {
-            res.status(200).json({ plans: results, page });
+            res.render('plans.ejs',{ plans: results, page });
         }
     });
 });
@@ -92,7 +92,7 @@ app.post('/plans', (req, res) => {
         if (err) {
             res.status(500).json({ message: 'Error creating plan', error: err.message });
         } else {
-            res.status(201).json({ message: 'Plan created successfully', plan_id });
+            res.redirect('/plans', { message: 'Plan created successfully', plan_id });
         }
     });
 });
@@ -131,7 +131,7 @@ app.get('/plans/:id', (req, res) => {
             return res.status(404).json({ message: 'Plan not found' });
         }
 
-        res.redirect('plan.ejs',{results});
+        res.render('plan.ejs',{results});
     });
 });
 
