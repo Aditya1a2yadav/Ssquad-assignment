@@ -9,7 +9,6 @@ const passport = require('passport');
 const flash = require('express-flash');
 const session = require('express-session');
 const methodOverride = require('method-override');
-const mysql = require("mysql2");
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
@@ -17,15 +16,7 @@ const initializePassport = require('./passport-config');
 initializePassport(passport);
 
 // Database connection
-const connection = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    database: "Ssquad",
-    password: "password",
-    multipleStatements: true,
-});
-connection.connect();
-global.db = connection;
+const db = require('../models/db');
 
 app.set('view-engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
