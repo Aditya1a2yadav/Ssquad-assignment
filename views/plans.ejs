@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plans</title>
+</head>
+<body>
+    <header>
+        <h1>All Plans</h1>
+        <a href="/logout">Logout</a>
+    </header>
+    
+    <!-- Filter Form -->
+    <section>
+        <h2>Filter Plans</h2>
+        <form action="/plans/filter" method="get">
+            <div>
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location">
+            </div>
+            <div>
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date">
+            </div>
+            <div>
+                <label for="category">Category:</label>
+                <input type="text" id="category" name="category">
+            </div>
+            <div>
+                <label for="sort_by">Sort By:</label>
+                <select id="sort_by" name="sort_by">
+                    <option value="">--Select--</option>
+                    <option value="date">Date</option>
+                    <option value="time">Time</option>
+                </select>
+            </div>
+            <button type="submit">Apply Filters</button>
+        </form>
+    </section>
+
+    <!-- List of Plans -->
+    <section>
+        <% if (plans.length > 0) { %>
+            <ul class="plans-list">
+                <% plans.forEach((plan) => { %>
+                    <li class="plan-item">
+                        <h2><%= plan.title %></h2>
+                        <p><strong>Location:</strong> <%= plan.location %></p>
+                        <p><strong>Category:</strong> <%= plan.category %></p>
+                        <p><strong>Date:</strong> <%= plan.date.toISOString().split('T')[0] %></p>
+                        <p><strong>Time:</strong> <%= plan.time %></p>
+                        <p><strong>Description:</strong> <%= plan.description || 'No description available' %></p>
+                        <p><strong>Status:</strong> <%= plan.status %></p>
+                        <a href="/plans/<%= plan.plan_id %>">View Details</a>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } else { %>
+            <p>No plans available.</p>
+        <% } %>
+    </section>
+    
+    <!-- Button to Create New Plan -->
+    <div>
+        <form action="/plans/new" method="get">
+            <button type="submit">Create New Plan</button>
+        </form>
+    </div>
+</body>
+</html>

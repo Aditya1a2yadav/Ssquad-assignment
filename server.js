@@ -11,12 +11,31 @@ const session = require('express-session');
 const methodOverride = require('method-override');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const mysql = require('mysql2');
+
 
 const initializePassport = require('./passport-config');
 initializePassport(passport);
 
 // Database connection
-const db = require('../models/db');
+// const db = require('./models/connection');
+
+const connection = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    database: "ssquad",
+    password: "password",
+    multipleStatements: true,
+});
+
+connection.connect((err) => {
+    if (err) {
+        console.error('Error connecting to the database:', err);
+    } else {
+        console.log('Auth Service connected to database');
+    }
+});
+global.db = connection;
 
 app.set('view-engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
@@ -56,12 +75,42 @@ db.query(createTableQuery, (err) => {
     }
 });
 
+// On the start of server
+app.get('/', checkAuthenticated, (req, res) => {
+    const name = req.name;
+    const query = 'SELECT * FROM plans';
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching data from plans table:', err);
+            return res.status(500).send('Internal Server Error');
+        }
+
+        res.render("plans.ejs", { plans: results, name: name });
+    });
+});
+
+
+app.get('/login', checkNotAuthenticated, (req, res) => {
+    res.render('login.ejs');
+});
+
+app.post('/login', checkNotAuthenticated, (req, res, next) => {
+    console.log('Login Form Data:', req.body);
+    next();
+}, passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/login',
+    failureFlash: true
+}));
+
+
 // Showing all plans
 app.get('/plans', checkAuthenticated, (req, res) => {
     // for pagination
-    const limit = parseInt(req.query.limit) || 10; 
-    const page = parseInt(req.query.page) || 1;    
-    const offset = (page - 1) * limit;           
+    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const offset = (page - 1) * limit;
 
     const query = `
         SELECT * FROM plans
@@ -73,11 +122,15 @@ app.get('/plans', checkAuthenticated, (req, res) => {
         if (err) {
             res.status(500).json({ message: 'Error fetching plans', error: err.message });
         } else {
-            res.render('plans.ejs',{ plans: results, page });
+            res.render('plans.ejs', { plans: results, page });
         }
     });
 });
 // To create new plan
+app.get('/plans/new', checkAuthenticated, (req, res) => {
+    res.render('newplan.ejs');
+});
+
 app.post('/plans', checkAuthenticated, (req, res) => {
     const { title, location, category, date, time, description, created_by } = req.body;
     const plan_id = uuidv4();
@@ -93,7 +146,7 @@ app.post('/plans', checkAuthenticated, (req, res) => {
             res.status(500).json({ message: 'Error creating plan', error: err.message });
         } else {
             // req.flash('success', 'Plan created successfully');
-            res.redirect('/plans',{plan_id});
+            res.redirect('/plans');
         }
     });
 });
@@ -102,21 +155,38 @@ app.post('/plans', checkAuthenticated, (req, res) => {
 app.get('/plans/filter', checkAuthenticated, (req, res) => {
     const { location, date, category, sort_by } = req.query;
 
-    const query = `
-        SELECT * FROM plans
-        WHERE (? IS NULL OR location = ?) AND (? IS NULL OR date = ?) AND (? IS NULL OR category = ?)
-        ORDER BY CASE WHEN ? = 'time' THEN time END ASC, CASE WHEN ? = 'date' THEN date END ASC;
-    `;
-    const values = [location, location, date, date, category, category, sort_by, sort_by];
+    let query = `SELECT * FROM plans WHERE 1=1`;
+    const values = [];
+    if (location) {
+        query += ` AND location = ?`;
+        values.push(location);
+    }
+
+    if (date) {
+        query += ` AND date = ?`;
+        values.push(date);
+    }
+
+    if (category) {
+        query += ` AND category = ?`;
+        values.push(category);
+    }
+
+    if (sort_by === 'date') {
+        query += ` ORDER BY date ASC`;
+    } else if (sort_by === 'time') {
+        query += ` ORDER BY time ASC`;
+    }
 
     db.query(query, values, (err, results) => {
         if (err) {
-            res.status(500).json({ message: 'Error filtering plans', error: err.message });
+            return res.status(500).json({ message: 'Error filtering plans', error: err.message });
         } else {
-            res.render('plans.ejs', { plans: results });
+            res.render('plans.ejs', { plans: results, filters: { location, date, category, sort_by } });
         }
     });
 });
+
 
 
 // Get a plan
@@ -128,15 +198,33 @@ app.get('/plans/:id', checkAuthenticated, (req, res) => {
     db.query(query, [planId], (err, results) => {
         if (err) {
             res.status(500).json({ message: err.message });
-        } 
+        }
         else {
             res.render('plan.ejs', { plan: results[0] });
         }
     });
 });
 
-
 // Update a plan
+app.get('/plans/edit/:id', checkAuthenticated, (req, res) => {
+    const planId = req.params.id;
+
+    const query = 'SELECT * FROM plans WHERE plan_id = ?';
+
+    db.query(query, [planId], (err, results) => {
+        if (err) {
+            console.error('Error fetching plan:', err);
+            return res.status(500).json({ message: 'Failed to fetch the plan for editing.' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'Plan not found.' });
+        }
+
+        res.render('edit.ejs', { plan: results[0] });
+    });
+});
+
 app.patch('/plans/:id', checkAuthenticated, (req, res) => {
     const planId = req.params.id;
     const { title, location, category, date, time, description, created_by } = req.body;
@@ -153,7 +241,7 @@ app.patch('/plans/:id', checkAuthenticated, (req, res) => {
         if (err) {
             res.status(400).json({ message: err.message });
         } else {
-            res.redirect(`/plans/${planId}`);
+            res.redirect(`/plans`);
         }
     });
 });
@@ -175,7 +263,14 @@ app.delete('/plans/:id', checkAuthenticated, (req, res) => {
     });
 });
 
-
+app.get('/logout', (req, res) => {
+    req.logOut((err) => {
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/login');
+    });
+});
 
 
 
