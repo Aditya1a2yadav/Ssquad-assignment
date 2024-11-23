@@ -78,26 +78,28 @@ app.get('/plans', checkAuthenticated, (req, res) => {
     });
 });
 // To create new plan
-app.post('/plans', (req, res) => {
+app.post('/plans', checkAuthenticated, (req, res) => {
     const { title, location, category, date, time, description, created_by } = req.body;
     const plan_id = uuidv4();
 
     const query = `
-        Insert into plans (plan_id, title, location, category, date, time, description, created_by)
+        INSERT INTO plans (plan_id, title, location, category, date, time, description, created_by)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?);
     `;
     const values = [plan_id, title, location, category, date, time, description, created_by];
 
-    db.query(query, values, (err, results) => {
+    db.query(query, values, (err) => {
         if (err) {
             res.status(500).json({ message: 'Error creating plan', error: err.message });
         } else {
-            res.redirect('/plans', { message: 'Plan created successfully', plan_id });
+            // req.flash('success', 'Plan created successfully');
+            res.redirect('/plans',{plan_id});
         }
     });
 });
 
-app.get('/plans/filter', (req, res) => {
+
+app.get('/plans/filter', checkAuthenticated, (req, res) => {
     const { location, date, category, sort_by } = req.query;
 
     const query = `
@@ -111,32 +113,31 @@ app.get('/plans/filter', (req, res) => {
         if (err) {
             res.status(500).json({ message: 'Error filtering plans', error: err.message });
         } else {
-            res.redirect('/plans',{ plans: results });
+            res.render('plans.ejs', { plans: results });
         }
     });
 });
 
+
 // Get a plan
-app.get('/plans/:id', (req, res) => {
+app.get('/plans/:id', checkAuthenticated, (req, res) => {
     const planId = req.params.id;
 
     const query = 'SELECT * FROM plans WHERE plan_id = ?';
 
     db.query(query, [planId], (err, results) => {
         if (err) {
-            return res.status(500).json({ message: err.message });
+            res.status(500).json({ message: err.message });
+        } 
+        else {
+            res.render('plan.ejs', { plan: results[0] });
         }
-
-        if (results.length === 0) {
-            return res.status(404).json({ message: 'Plan not found' });
-        }
-
-        res.render('plan.ejs',{results});
     });
 });
 
+
 // Update a plan
-app.patch('/plans/:id', (req, res) => {
+app.patch('/plans/:id', checkAuthenticated, (req, res) => {
     const planId = req.params.id;
     const { title, location, category, date, time, description, created_by } = req.body;
 
@@ -148,29 +149,32 @@ app.patch('/plans/:id', (req, res) => {
 
     const values = [title, location, category, date, time, description, created_by, planId];
 
-    db.query(query, values, (err, results) => {
+    db.query(query, values, (err) => {
         if (err) {
-            return res.status(400).json({ message: err.message });
+            res.status(400).json({ message: err.message });
+        } else {
+            res.redirect(`/plans/${planId}`);
         }
-        res.redirect(`/plans/${planId}`);
     });
 });
 
 
+
 // Delete a plan
-app.delete('/plans/:id', (req, res) => {
+app.delete('/plans/:id', checkAuthenticated, (req, res) => {
     const planId = req.params.id;
 
     const query = 'DELETE FROM plans WHERE plan_id = ?';
 
-    db.query(query, [planId], (err, results) => {
+    db.query(query, [planId], (err) => {
         if (err) {
-            return res.status(500).json({ message: err.message });
+            res.status(500).json({ message: err.message });
+        } else {
+            res.redirect('/plans');
         }
-
-        res.redirect('/plans');
     });
 });
+
 
 
 
